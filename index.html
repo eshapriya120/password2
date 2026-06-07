@@ -1,0 +1,240 @@
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .card { background: #fff; border-radius: 24px; padding: 2rem; width: 100%; max-width: 400px; }
+  .emoji-big { font-size: 40px; text-align: center; margin-bottom: 8px; }
+  h2 { text-align: center; font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+  .sub { text-align: center; font-size: 13px; color: #aaa; margin-bottom: 1.5rem; }
+  .input-wrap { position: relative; margin-bottom: 1.25rem; }
+  #pw {
+    width: 100%; padding: 14px 44px 14px 16px;
+    border: 2px solid #eee; border-radius: 14px;
+    font-size: 15px; font-family: inherit; color: #1a1a1a;
+    outline: none; transition: border-color 0.2s; background: #fafafa;
+  }
+  #pw:focus { border-color: #667eea; background: #fff; }
+  #pw::placeholder { color: #ccc; }
+  .eyebtn {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;
+  }
+  .segments { display: flex; gap: 6px; margin-bottom: 8px; }
+  .seg { flex: 1; height: 6px; border-radius: 99px; background: #eee; transition: background 0.3s; }
+  .status { text-align: center; font-size: 13px; font-weight: 600; color: #ccc; margin-bottom: 1.5rem; min-height: 20px; }
+  .groups { display: flex; flex-direction: column; gap: 1rem; }
+  .group-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px;
+    padding: 3px 10px; border-radius: 99px; display: inline-block;
+  }
+  .label-weak   { background: #fff0f0; color: #e05555; }
+  .label-medium { background: #fff8e6; color: #d48800; }
+  .label-strong { background: #edfff0; color: #2e9e4f; }
+  .rows { display: flex; flex-direction: column; gap: 6px; }
+  .row { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #bbb; transition: color 0.2s; }
+  .row .icon {
+    width: 20px; height: 20px; border-radius: 50%; background: #f0f0f0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0; transition: background 0.2s;
+  }
+  .row.ok { color: #1a1a1a; }
+  .row.ok .icon { background: #5cb85c; color: #fff; }
+  .sep { border: none; border-top: 1px dashed #f0f0f0; margin: 0.75rem 0; }
+  .genbtn {
+    width: 100%; margin-top: 1.5rem; padding: 14px; border: none; border-radius: 14px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff; font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .genbtn:hover { opacity: 0.88; }
+  .genbtn:active { transform: scale(0.98); }
+  .copied { text-align: center; font-size: 12px; color: #2e9e4f; margin-top: 10px; min-height: 18px; opacity: 0; transition: opacity 0.3s; }
+  .copied.show { opacity: 1; }
+</style>
+
+<div class="card">
+  <div class="emoji-big" id="mainEmoji">🔑</div>
+  <h2>Password Checker</h2>
+  <p class="sub">How strong is your password?</p>
+  <div class="input-wrap">
+    <input type="password" id="pw" placeholder="Type your password…" oninput="check()" />
+    <button class="eyebtn" onclick="toggleEye()" id="eyebtn">👁️</button>
+  </div>
+  <div class="segments">
+    <div class="seg" id="s1"></div>
+    <div class="seg" id="s2"></div>
+    <div class="seg" id="s3"></div>
+  </div>
+  <div class="status" id="status">Start typing…</div>
+  <div class="groups">
+    <div>
+      <span class="group-label label-weak">Weak</span>
+      <div class="rows">
+        <div class="row" id="c1"><div class="icon">·</div> 6 to 7 characters</div>
+        <div class="row" id="c2"><div class="icon">·</div> Has a number</div>
+        <div class="row" id="c3"><div class="icon">·</div> Has a letter</div>
+      </div>
+    </div>
+    <hr class="sep" />
+    <div>
+      <span class="group-label label-medium">Medium</span>
+      <div class="rows">
+        <div class="row" id="c4"><div class="icon">·</div> 10 to 15 characters</div>
+        <div class="row" id="c5"><div class="icon">·</div> Has lowercase</div>
+        <div class="row" id="c6"><div class="icon">·</div> 1 special character</div>
+        <div class="row" id="c7"><div class="icon">·</div> At least 2 numbers</div>
+      </div>
+    </div>
+    <hr class="sep" />
+    <div>
+      <span class="group-label label-strong">Strong</span>
+      <div class="rows">
+        <div class="row" id="c8"><div class="icon">·</div> 10 to 16 characters</div>
+        <div class="row" id="c9"><div class="icon">·</div> 1 capital letter</div>
+        <div class="row" id="c10"><div class="icon">·</div> 2 special characters</div>
+        <div class="row" id="c11"><div class="icon">·</div> 4 numbers</div>
+      </div>
+    </div>
+  </div>
+  <button class="genbtn" onclick="gen()">✨ Generate Strong Password</button>
+  <div class="copied" id="copied">✓ Copied to clipboard!</div>
+</div>
+
+<script>
+  // Each condition has its own latch + its own "unlock threshold"
+  // met ஆனா → lock ON
+  // unlock threshold cross ஆனா மட்டும் → lock OFF
+  // Extra letters போட்டாலும் threshold cross ஆகல்ன்னா → green stays!
+
+  const latch = {};
+  for (let i = 1; i <= 11; i++) latch['c'+i] = false;
+
+  function setRow(id, on) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const icon = el.querySelector('.icon');
+    if (on) { el.classList.add('ok'); icon.textContent = '✓'; }
+    else     { el.classList.remove('ok'); icon.textContent = '·'; }
+  }
+
+  // smartLatch: met ஆனா lock; unlock only when unlockWhen() returns true
+  function smartLatch(id, currentlyMet, unlockWhen) {
+    if (currentlyMet) {
+      latch[id] = true;
+    } else if (latch[id] && unlockWhen()) {
+      // Only unlock if the specific "undo" condition is triggered
+      latch[id] = false;
+    }
+    // else: latch stays as-is (extra letters போட்டாலும் green stays)
+    setRow(id, latch[id]);
+  }
+
+  function setSegs(count, color) {
+    for (let i = 1; i <= 3; i++)
+      document.getElementById('s'+i).style.background = i <= count ? color : '#eee';
+  }
+
+  let bestLevel = 0;
+
+  function check() {
+    const pw   = document.getElementById('pw').value;
+    const len  = pw.length;
+    const nums = (pw.match(/\d/g) || []);
+    const spec = (pw.match(/[^a-zA-Z0-9]/g) || []);
+    const hasLet = /[a-zA-Z]/.test(pw);
+    const hasLow = /[a-z]/.test(pw);
+    const hasUp  = /[A-Z]/.test(pw);
+
+    if (!pw) {
+      for (let i = 1; i <= 11; i++) { latch['c'+i] = false; setRow('c'+i, false); }
+      setSegs(0, '#eee');
+      document.getElementById('status').textContent = 'Start typing…';
+      document.getElementById('status').style.color = '#ccc';
+      document.getElementById('mainEmoji').textContent = '🔑';
+      bestLevel = 0;
+      return;
+    }
+
+    // WEAK
+    // c1: "6 to 7 chars" — met: len>=6; unlock only if len drops below 6
+    smartLatch('c1', len >= 6, () => len < 6);
+    // c2: "has number" — met: nums>=1; unlock only if no numbers left
+    smartLatch('c2', nums.length >= 1, () => nums.length < 1);
+    // c3: "has letter" — met: hasLet; unlock only if no letters left
+    smartLatch('c3', hasLet, () => !hasLet);
+    const weak = latch.c1 && latch.c2 && latch.c3;
+
+    // MEDIUM
+    // c4: "10 to 15 chars" — met: len>=10; unlock only if len drops below 10
+    smartLatch('c4', len >= 10, () => len < 10);
+    smartLatch('c5', hasLow,          () => !hasLow);
+    smartLatch('c6', spec.length >= 1, () => spec.length < 1);
+    smartLatch('c7', nums.length >= 2, () => nums.length < 2);
+    const med = latch.c4 && latch.c5 && latch.c6 && latch.c7;
+
+    // STRONG
+    // c8: "10 to 16 chars" — met: len>=10; unlock only if len drops below 10
+    smartLatch('c8', len >= 10,        () => len < 10);
+    smartLatch('c9', hasUp,            () => !hasUp);
+    smartLatch('c10', spec.length >= 2, () => spec.length < 2);
+    smartLatch('c11', nums.length >= 4, () => nums.length < 4);
+    const strong = latch.c8 && latch.c9 && latch.c10 && latch.c11;
+
+    if (strong && bestLevel < 3) bestLevel = 3;
+    else if (med && bestLevel < 2) bestLevel = 2;
+    else if (weak && bestLevel < 1) bestLevel = 1;
+
+    const st = document.getElementById('status');
+    const em = document.getElementById('mainEmoji');
+
+    if (bestLevel === 3) {
+      setSegs(3, '#2e9e4f');
+      st.textContent = '🔒 Strong — Great job!'; st.style.color = '#2e9e4f';
+      em.textContent = '🛡️';
+    } else if (bestLevel === 2) {
+      setSegs(2, '#f0a500');
+      st.textContent = '🔶 Medium — Almost there!'; st.style.color = '#d48800';
+      em.textContent = '😐';
+    } else if (bestLevel === 1) {
+      setSegs(1, '#e05555');
+      st.textContent = '⚠️ Weak — Add more!'; st.style.color = '#e05555';
+      em.textContent = '😬';
+    } else {
+      setSegs(0, '#eee');
+      st.textContent = len < 6 ? 'Too short…' : 'Keep going…';
+      st.style.color = '#ccc';
+      em.textContent = '🔑';
+    }
+  }
+
+  function toggleEye() {
+    const pw = document.getElementById('pw');
+    const btn = document.getElementById('eyebtn');
+    if (pw.type === 'password') { pw.type = 'text'; btn.textContent = '🙈'; }
+    else { pw.type = 'password'; btn.textContent = '👁️'; }
+  }
+
+  const S='!@#$%^&*', L='abcdefghijklmnopqrstuvwxyz', U='ABCDEFGHIJKLMNOPQRSTUVWXYZ', D='0123456789';
+  const r = s => s[Math.floor(Math.random()*s.length)];
+  const shuf = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+  function gen() {
+    const c = [r(U), r(S), r(S)];
+    for(let i=0;i<4;i++) c.push(r(D));
+    for(let i=0;i<4+Math.floor(Math.random()*5);i++) c.push(r(L+U));
+    const pw = shuf(c).join('');
+    document.getElementById('pw').value = pw;
+    check();
+    navigator.clipboard.writeText(pw).then(()=>{
+      const el = document.getElementById('copied');
+      el.classList.add('show');
+      setTimeout(()=>el.classList.remove('show'), 2000);
+    }).catch(()=>{});
+  }
+</script>
